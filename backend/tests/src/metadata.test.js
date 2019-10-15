@@ -3,8 +3,8 @@ const MetaInfo = require('../../src/libs/scanner/mediainfo');
 const EyeD3 = require('../../src/libs/eyeD3');
 
 describe('ID3 Tags', () => {
-    const resDir = `${process.cwd()}/packages/server/__tests__/resources`;
-    const resFile = `${resDir}/Under The Ice (Scene edit).mp3`;
+    const resDir = path.join(__dirname, '..', 'resources');
+    const resFile = path.join(resDir, 'Under The Ice (Scene edit).mp3');
 
     it('Mediainfo', async () => {
         const metadata = await MetaInfo.getData(resFile);
