@@ -21,6 +21,7 @@
     "url": "https://github.com/chrisvoo/mp3manager/issues"
   },
   "scripts": {
+    "test": "cross-env NODE_ENV=test jasmine tests/src/metadata.test.js",
     "start": "cross-env NODE_ENV=production node src/index.js"
   },
   "bin": {
@@ -45,6 +46,7 @@
     "merge-graphql-schemas": "~1.5.8",
     "moment": "^2.24.0",
     "mongoose": "^5.6.6",
+    "music-metadata": "^4.8.0",
     "nodebrainz": "~2.1.1",
     "request": "~2.88.0",
     "request-promise-native": "^1.0.7",
@@ -54,6 +56,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.2",
+    "cross-env": "^6.0.3",
     "eslint": "^6.1.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
@@ -61,6 +64,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "jasmine": "^3.5.0",
     "random-buffer": "^0.1.0"
   }
 }
