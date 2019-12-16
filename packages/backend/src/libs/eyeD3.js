@@ -1,8 +1,6 @@
 const _ = require('underscore');
-const path = require('path');
 
 const { execute, createTempDir } = require('./utils');
-const { scanner } = require('../config/getConfig');
 
 class EyeD3 {
     /**
@@ -127,9 +125,8 @@ class EyeD3 {
         const finalComment = `${comment}:${Date.now()}:eng`;
         
         const args = [];
-        const { removeAllComments } = scanner;
 
-        if (removeAllComments) {
+        if (process.env.REMOVE_ALL_COMMENTS) {
             args.push('--remove-all-comments');
         }
 

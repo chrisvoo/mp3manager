@@ -1,8 +1,7 @@
 # MP3 Manager
 
-[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/df633fac03554e5a98540824373cd3a8)](https://www.codacy.com/app/chrisvoo/mp3manager?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chrisvoo/mp3manager&amp;utm_campaign=Badge_Grade)
-[![Build Status](https://travis-ci.com/chrisvoo/mp3manager.svg?branch=master)](https://travis-ci.com/chrisvoo/mp3manager)
+<!-- [![Build Status](https://travis-ci.com/chrisvoo/mp3manager.svg?branch=master)](https://travis-ci.com/chrisvoo/mp3manager) -->
 
 - [Requirements](#requirements)
   - [Windows notes](#windows-notes)
@@ -10,7 +9,7 @@
 - [Description and usage](#description-and-usage)
   - [Scanner](#scanner)
 
-This project is intended to manage a large collection of MP3 files both from the browser and from a React Native app. The browser version should do some privileged tasks like user management, absent from the mobile version which will focus more or listening to music.
+This project is intended to manage a large collection of MP3 files both from the browser and from a React Native app. The browser version should do some privileged tasks like user management, absent from the mobile version which will focus more on listening to music.
 The interfaces should allow the user:
 
 - to listen to music, streamed by a server in the same LAN as the client (Web and mobile client)
@@ -21,7 +20,8 @@ Extenal webservices API may be used, such as [MusicBrainz](https://musicbrainz.o
 
 ## Requirements
 
-- __Node.js 10.*__: this is the LTS version I've used, but it should work with every version superior to 7.6, which supports `async/await` out of the box without requiring transpilation.
+- __pnpm__: [package manager](https://pnpm.js.org/en/) to easily manage a monorepo.
+- __Node.js >= 10.*__: this is the LTS version I've used, but it should work with every version superior to 7.6, which supports `async/await` out of the box without requiring transpilation.
 - __ffmpeg__: used to read MP3 files' metadata. [Windows builds](https://ffmpeg.zeranoe.com/builds/) or `sudo apt install ffmpeg` for Debian like distros.
 - __mediainfo__: used to get the files' audio details (bitrate, duration). You can get it [here](https://mediaarea.net/en/MediaInfo/Download)
 
@@ -36,13 +36,9 @@ Regarding GCC, you can install a current version of [MinGW-w64](https://sourcefo
 This is a monorepo which hosts all the parts of the architecture. You can manage Node.js dependencies with [Lerna](https://lernajs.io/). To start modifying this project, just do the following after having cloned this repo:
 
 ```bash
-npm install --global lerna cross-env
-lerna bootstrap --hoist
-npm link
+npm install --global pnpm cross-env
+pnpm recursive install
 ```
-
-The last command is required to create the appropriate symlinks for using the `mm` command-line app wherever you want.
-If you want to add a module for all the projects, just do it with `lerna add <package>@<version> --hoist`.
 
 ## Test
 
@@ -56,7 +52,6 @@ Run the following commands in the root of the project:
 This project is composed by two main parts at the moment:
 
 - API server: this endpoint provides the frontend with a set of GraphQL queries and mutations which can be executed by the frontend.
-
 - Streaming server: this is responsible for serving your music collection files
 
 To start these two components, just type the following commands:

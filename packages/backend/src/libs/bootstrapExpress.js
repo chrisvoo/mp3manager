@@ -1,11 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { execute, subscribe } = require('graphql');
+const _ = require('underscore');
 const { ApolloServer } = require('apollo-server-express');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
 const cors = require('cors');
-const http = require('http');
-const config = require('../config/getConfig');
+const http = require('http')
+const url = require('url');
+const fs = require('fs');
+
+const logger = require('../libs/logger');
 const schema = require('../models/graphql/schema');
 
 /**
@@ -16,7 +18,7 @@ function bootstrapExpress() {
     return new Promise((resolve, reject) => {
         try {
             const app = express();
-            app.use(cors({ credentials: true, origin: config.frontendURL }));
+            app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
             app.use(bodyParser.json());
             app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -32,7 +34,11 @@ function bootstrapExpress() {
                     }
                 }
         
-                logger.debug('Streamer', { file: queryData.file, skip });
+                logger.debug('Streamer', {
+                    metadata: {
+                        file: queryData.file, skip,
+                    },
+                });
         
                 if (_.isEmpty(queryData.file)) {
                     response.writeHead(400, {
@@ -40,7 +46,8 @@ function bootstrapExpress() {
                     });
                     response.end(JSON.stringify({ error: 'Missing file parameter' }));
                 } else {
-                    const filePath = 'D:/Musica/Compilations/AC-DC/Highway To Hell.mp3';
+                    // eslint-disable-next-line max-len
+                    const filePath = '/home/ccastelli/Documents/GitHub/mp3manager/packages/backend/tests/resources/Under The Ice (Scene edit).mp3';
                     const stat = fs.statSync(filePath);
                     const startByte = skip;
         
@@ -51,32 +58,18 @@ function bootstrapExpress() {
         
                     fs.createReadStream(filePath, { start: startByte }).pipe(response);
                 }
-            })
+            });
 
-            const httpServer = http.createServer();
-
-            httpServer.listen(config.frontend.webSocketPort, '0.0.0.0', () => new SubscriptionServer({
-                execute,
-                subscribe,
-                schema,
-                onConnect: async (connectionParams) => {
-                    console.log(connectionParams);
-                    return {};
-                },
-            }, {
-                server: httpServer,
-                path: '/subscriptions',
-            }));
+            const httpServer = http.createServer(app);
 
             const server = new ApolloServer({
                 debug: true,
                 schema,
-                formatError: (err) => { console.error(err); return err; },
             });
 
             server.applyMiddleware({ app });
-            app.listen({ port: config.backend.apiPort }, () => {
-                console.info(`🚀 Server ready at http://localhost:${config.backend.apiPort}${server.graphqlPath}`);
+            httpServer.listen({ port: process.env.SERVER_PORT }, () => {
+                console.info(`🚀 Server ready at http://localhost:${process.env.SERVER_PORT}${server.graphqlPath}`);
                 resolve(app);
             });
         } catch (error) {
