@@ -1,24 +1,5 @@
 # TODO list
 
-- [x] Install Lerna and structure the project (2018-09-17)
-- [x] configure PM2 (2018-09-18)
-- [ ] Implement the server
-  - [x] GraphQL server setup: `apollo-server`'s new version has some differences in its setup. [Playground](https://www.apollographql.com/docs/apollo-server/features/graphql-playground.html) is always available in development, and always disabled with `NODE_ENV=production` (2018-09-17);
-  - [ ] Scan debugging (2018-04-22)
-    - [ ] `(node:7792) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exit listeners added. Use emitter.setMaxListeners() to increase limit`
-    - [ ] Pool timeout
-    - [ ] MusicBrainz strange results
-    - [ ] `Incorrect date value: '1986-12' for column mp3manager.file_metadata.originaldate`
-    - [ ] `No parser found for extension`
-    - [ ] {"service":"server","phase":"insertAllData","step":"insert","result":{"error":true,"duplicated":false,"code":"ER_DATA_TOO_LONG","message":"(conn=83, no: 1406, SQLState: 22001) Data too long for column 'name' at row 1\nsql: INSERT INTO file\n                            (name,atime,mtime,size,path,md5_hash)\n                          VALUES (:name,:atime,:mtime,:size,:path,:md5_hash) - parameters:{'name':'Toto' - Vota Antonio La Trippa!! - Dal Film Gli Onorevoli','atime':'04/23/2019 08:23:07.504','mtime':'04/23/2019 08:23:07.504','size':1448839,'path':'D:\\Musica\\6) OST\\Toto' - Vota Antonio La Trippa!! - Dal Film Gli Onorevoli.mp3','md5_hash':'950bc19ec867e84f46d02640d0e6c99f'}","md5_hash":"950bc19ec867e84f46d02640d0e6c99f"},"level":"debug","message":"Music scanner","timestamp":"28-04-19 19:09:11"}
-  - [ ] Evaluate the main fingerprinting tools.
-    - [ ] https://github.com/spotify/echoprint-codegen
-    - [ ] AcoustID audio fingerprint: https://github.com/parshap/node-fpcalc (https://acoustid.org/)
-  - [x] Implement and test the music scanner
-  - [ ] Evaluate Lyrics providers
-    - [ ] https://developer.musixmatch.com/
-  - [ ] Albums' covers providers
-    - [ ] https://fanart.tv/get-an-api-key/
-  - [ ] Metadata providers
-    - [ ] https://www.discogs.com/developers/
-    - [ ] https://www.last.fm/api/show/artist.search
+- [] Create PM2 config to launch all packages. PNPM can just stop apps, if there's a script named like this
+- [] Setup the backend integration inside the frontend package
+- [] Find the React package which can deal with MP3 reproduction

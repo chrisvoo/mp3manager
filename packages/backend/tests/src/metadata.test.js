@@ -1,10 +1,17 @@
 const fs = require('fs');
+const util = require('util');
+const mm = require('music-metadata');
 const MetaInfo = require('../../src/libs/scanner/mediainfo');
 const EyeD3 = require('../../src/libs/eyeD3');
 
 describe('ID3 Tags', () => {
     const resDir = `${process.cwd()}/packages/server/__tests__/resources`;
     const resFile = `${resDir}/Under The Ice (Scene edit).mp3`;
+
+    fit('MusicMetadata', async () => {
+        const metadata = await mm.parseFile(resFile, { duration: true });
+        console.log(util.inspect(metadata, { showHidden: false, depth: null }));
+    });
 
     it('Mediainfo', async () => {
         const metadata = await MetaInfo.getData(resFile);
