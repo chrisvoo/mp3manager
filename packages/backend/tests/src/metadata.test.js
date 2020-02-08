@@ -1,16 +1,47 @@
 const fs = require('fs');
-const util = require('util');
+// const util = require('util');
 const mm = require('music-metadata');
 const MetaInfo = require('../../src/libs/scanner/mediainfo');
 const EyeD3 = require('../../src/libs/eyeD3');
 
 describe('ID3 Tags', () => {
-    const resDir = `${process.cwd()}/packages/server/__tests__/resources`;
+    const resDir = `${process.cwd()}/tests/resources`;
     const resFile = `${resDir}/Under The Ice (Scene edit).mp3`;
 
     fit('MusicMetadata', async () => {
         const metadata = await mm.parseFile(resFile, { duration: true });
-        console.log(util.inspect(metadata, { showHidden: false, depth: null }));
+        const {
+            format: {
+                tagTypes,
+                sampleRate,
+                numberOfChannels,
+                bitrate,
+                codecProfile,
+                duration,
+            },
+            common: {
+                year,
+                title,
+                artists,
+                album,
+                picture,
+                date,
+            },
+        } = metadata;
+        expect(tagTypes).toHaveLength(1);
+        expect(tagTypes[0]).toBe('ID3v2.4');
+        expect(sampleRate).toBe(44100);
+        expect(numberOfChannels).toBe(2);
+        expect(bitrate).toBe(320000);
+        expect(codecProfile).toBe('CBR');
+        expect(parseInt(duration, 10)).toBe(128);
+        expect(year).toBe(2010);
+        expect(title).toBe('Under The Ice (Scene edit)');
+        expect(artists.join(',')).toBe('UNKLE');
+        expect(album).toBe('Lives Of The Artists: Follow Me Down - Soundtrack');
+        expect(date).toBe('2010');
+        expect(picture[0].format).toBe('image/jpeg');
+        // console.log(util.inspect(metadata, { showHidden: false, depth: null }));
     });
 
     it('Mediainfo', async () => {

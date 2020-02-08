@@ -62,3 +62,7 @@ typings/
 
 # Windows specific
 desktop.ini
+
+# Scanner project
+packages/Scanner/.idea
+packages/Scanner/target

@@ -4,15 +4,12 @@
 const { join } = require('path');
 
 const ROOT = `${process.cwd()}`;
-const SERVER_ENV = join(ROOT, '/packages/server/__tests__');
+const SERVER_ENV = join(ROOT, 'tests');
+console.log(SERVER_ENV)
 
 module.exports = {
     verbose: true,
     automock: false,
-    testMatch: [
-        join(SERVER_ENV, '/src/**/*.test.js'),
-    ],
+    testMatch: [join(SERVER_ENV, '/src/*.test.js')],
     testEnvironment: 'node',
-    // globalSetup: join(ROOT, 'scripts/jest/setup.js'),
-    // globalTeardown: join(ROOT, 'scripts/jest/teardown.js'),
 };

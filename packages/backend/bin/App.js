@@ -1,7 +1,6 @@
 const util = require('util');
 require('colors');
 const childProcess = require('child_process');
-
 const bootstrapMongoose = require('../src/models/db/mongo');
 const MusicScanner = require('../src/libs/scanner');
 

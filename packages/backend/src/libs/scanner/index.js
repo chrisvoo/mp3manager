@@ -1,15 +1,12 @@
 const path = require('path');
 const _ = require('underscore');
 const fs = require('graceful-fs');
+const mm = require('music-metadata');
 const readline = require('readline');
 
 const { promisify } = require('util');
-
 const MusicFile = require('./../../models/db/mongo/music_files');
-const MetaInfo = require('./mediainfo');
-// const EyeD3 = require('../../../src/libs/eyeD3');
 
-// const readFile = promisify(fs.readFile);
 const readdir = promisify(fs.readdir);
 
 class MusicScanner {
@@ -97,26 +94,18 @@ class MusicScanner {
         }
 
         this.processResult.totFiles += 1;
-        const metadata = await MetaInfo.getData(resource);
-        const fileSize = metadata.size;
-
-        delete metadata.size;
+        const metadata = await mm.parseFile(resource, { duration: true });
+        const { format, common } = metadata;
+        const fileSize = fs.statSync(resource).size;
 
         const fileInstance = {
             path: resource,
             fileSize,
-            metadata,
+            metadata: {
+                format,
+                common,
+            },
         };
-
-        // 5x slower uncommenting this block.
-        // if (metadata.hasOwnProperty('image')) {
-        //     const imgPath = await EyeD3.getCoverImage(resource);
-        //     if (!_.isNull(imgPath)) {
-        //         let data = await readFile(imgPath);
-        //         fileInstance.coverImage = data;
-        //         data = null;
-        //     }
-        // }
 
         if (!this.keepInMemory) {
             MusicFile.create(fileInstance);

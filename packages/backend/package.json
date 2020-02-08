@@ -21,7 +21,8 @@
     "url": "https://github.com/chrisvoo/mp3manager/issues"
   },
   "scripts": {
-    "start": "nodemon --exec 'cross-env node src/index.js'"
+    "start": "nodemon --exec 'cross-env node src/index.js'",
+    "test": "jest"
   },
   "bin": {
     "mm": "./bin/mm"
@@ -69,6 +70,7 @@
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-jest": "^22.21.0",
     "nodemon": "^2.0.2",
-    "random-buffer": "^0.1.0"
+    "random-buffer": "^0.1.0",
+    "jest": "^25"
   }
 }

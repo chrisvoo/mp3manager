@@ -1,16 +1,10 @@
 {
   "name": "mp3manager",
   "version": "1.0.0",
-  "description": "",
-  "main": " ",
   "dependencies": {},
   "devDependencies": {},
-  "scripts": {
-    "test": "pnpm run test --filter=backend"
-  },
   "engines": {
-    "node": ">=10",
-    "pnpm": ">=3"
+    "node": ">=10"
   },
   "repository": {
     "type": "git",
