@@ -4,43 +4,63 @@ package it.chrisvoo;
   Benchmarking lib: http://openjdk.java.net/projects/code-tools/jmh/
  */
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.concurrent.ForkJoinPool;
 
+/**
+ * Scan a directory for MP3 and store its metadata and paths inside the db
+ */
 public class Scanner {
-    private static ArrayList<Path> files = new ArrayList<>();
+    private ArrayList<Path> files = new ArrayList<>();
+    private Path chosenPath;
+    private int threshold;
 
-    public static void main(String[] args) throws URISyntaxException {
-        Scanner scanner = new Scanner();
-        File file = scanner.getFileFromResources("Under The Ice (Scene edit).mp3");
-        System.out.println(file.getAbsolutePath());
-//        Path dir = Paths.get("D:\\Musica");
-//        listFiles(dir);
-//        System.out.println("Found " + files.size() + " files");
-    }
-
-    // get file from classpath, resources folder
-    private File getFileFromResources(String fileName) {
-
-        ClassLoader classLoader = getClass().getClassLoader();
-
-        URL resource = classLoader.getResource(fileName);
-        if (resource == null) {
-            throw new IllegalArgumentException("file is not found!");
-        } else {
-            return new File(resource.getFile());
+    /**
+     * Creates an instance of the scanner.
+     * @param path A Path
+     * @param threshold A threshold which defines when to fork a new ScanTask
+     */
+    public Scanner(String path, int threshold) {
+        try {
+            chosenPath = Paths.get(path);
+            this.threshold = threshold;
+        } catch (Exception e) {
+            System.out.printf("Cannot read %s", path);
         }
-
     }
 
-    public static void listFiles(Path path) {
+    /**
+     * It creates a ForkJoinPool using the available processors to read the metadata of the
+     * music files and store them inside the database.
+     * @return a ScanResult instance containing the total files found, the total
+     * size and eventual errors encountered during the process
+     */
+    public ScanResult start() {
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        System.out.printf("Running scanner with a pool of %d threads\n", nThreads);
+
+        boolean isListOk = listFiles(chosenPath);
+        if (!isListOk) {
+            return null;
+        }
+        System.out.println("Collected " + files.size() + " paths");
+
+        ForkJoinPool pool = new ForkJoinPool(nThreads);
+        ScanTask task = new ScanTask(files.toArray(new Path[0]), threshold);
+        return pool.invoke(task);
+    }
+
+    /**
+     * It recursively stores all MP3 paths found in a directory (and all its subdirs)
+     * inside an ArrayList.
+     * @param path A Path.
+     * @return true if it was able to found the directory and read its files, false otherwise
+     */
+    public boolean listFiles(Path path) {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
             for (Path entry : stream) {
                 if (Files.isDirectory(entry)) {
@@ -51,8 +71,11 @@ public class Scanner {
                     files.add(entry);
                 }
             }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
+
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+            return false;
         }
     }
 }
