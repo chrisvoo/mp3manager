@@ -3,14 +3,21 @@ package it.chrisvoo;
 import com.mpatric.mp3agic.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * mp3agic tests
+ */
 public class MusicMetadataTest {
 
+    /**
+     * It can read metadata from an MP3
+     */
     @Test
     public void canReadMetadata() {
         try {
@@ -21,7 +28,13 @@ public class MusicMetadataTest {
             assertEquals(5235428, mp3.getLength());
             assertEquals(320, mp3.getBitrate());
             assertEquals("Joint stereo",  mp3.getChannelMode());
-            assertEquals(".\\target\\test-classes\\Under The Ice (Scene edit).mp3", mp3.getFilename());
+            assertEquals(
+                    "." + File.separator +
+                    "target" + File.separator +
+                    "test-classes" + File.separator +
+                    "Under The Ice (Scene edit).mp3",
+                    mp3.getFilename()
+            );
             assertEquals(129, mp3.getLengthInSeconds());
             assertEquals(44100, mp3.getSampleRate());
             assertFalse(mp3.hasCustomTag());
