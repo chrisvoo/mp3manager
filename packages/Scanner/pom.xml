@@ -6,7 +6,7 @@
 
     <groupId>it.chrisvoo</groupId>
     <artifactId>Scanner</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <properties>
         <maven.compiler.release>13</maven.compiler.release>
@@ -16,6 +16,11 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>4.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>1.4.0</version>
         </dependency>
         <dependency>
             <groupId>com.mpatric</groupId>

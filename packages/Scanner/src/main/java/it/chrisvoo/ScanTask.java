@@ -42,7 +42,9 @@ public class ScanTask extends RecursiveTask<ScanResult> {
             for (Path path : paths) {
                 try {
                     Mp3File mp3 = new Mp3File(path);
-                    result.joinFiles(1).joinBytes(path.toFile().length());
+                    result
+                        .joinFiles(1)
+                        .joinBytes(mp3.getLength());
                 } catch (Exception e) {
                     result.addError(path, e.getMessage());
                 }
@@ -54,8 +56,7 @@ public class ScanTask extends RecursiveTask<ScanResult> {
             Path[] subset2 = Arrays.copyOfRange(paths, paths.length / 2, paths.length);
             ScanTask subTaskTwo = new ScanTask(subset2, threshold);
 
-            subTaskOne.fork();
-            subTaskTwo.fork();
+            invokeAll(subTaskOne, subTaskTwo);
 
             result.joinResult(subTaskOne.join());
             result.joinResult(subTaskTwo.join());
