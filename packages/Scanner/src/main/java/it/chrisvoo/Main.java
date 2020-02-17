@@ -25,6 +25,11 @@ public class Main implements Callable<Integer> {
     private Integer threshold = null;
 
     /**
+     * Mongo connection string
+     */
+    private String mongoConnectionString;
+
+    /**
      * Paths to be scanned for music. If there's an intersection between path, they will be normalized. For example if
      * path A includes path B, path B will be discarded. This avoids useless duplicates.
      */
@@ -38,21 +43,41 @@ public class Main implements Callable<Integer> {
         System.exit(exitCode);
     }
 
-    public List<Path> mergePaths(List<Path> paths) {
-        return paths
+    /**
+     * It tells if a Path is a child of the other specified
+     * @param child A Path to check
+     * @param possibleParent The path that may be the parent
+     * @return true if it's a child of possibleParent, false otherise or if they're equal
+     */
+    private boolean isChild(Path child, Path possibleParent) {
+        if (child.equals(possibleParent)) {
+            return false;
+        }
+
+        Path parent = possibleParent.normalize().toAbsolutePath();
+        return child.startsWith(parent);
+    }
+
+    /**
+     * Takes a list of strings representing paths and filters out duplicates and directories which are
+     * children of other directories in the list.
+     * @param paths The paths to scan
+     * @return A list of Path instances
+     */
+    public List<Path> mergePaths(List<String> paths) {
+       return paths
           .stream()
           .distinct()
           .map(p -> {
               try {
-                  Path realPath =  p.toRealPath();
-                  // to be finished
-                  return realPath;
+                  return Paths.get(p).toRealPath();
               } catch (IOException e) {
                   System.out.printf("WARNING: %s does NOT exist and won't be considered", p.toString());
                   return null;
               }
           })
           .filter(Objects::nonNull)
+          .filter(p -> paths.stream().noneMatch(path -> isChild(p, Paths.get(path).normalize().toAbsolutePath())))
           .collect(Collectors.toList());
     }
 
@@ -60,21 +85,27 @@ public class Main implements Callable<Integer> {
      * Computes a result, or throws an exception if unable to do so.
      *
      * @return computed result
-     * @throws Exception if unable to compute a result
+     * @throws Exception if unable to compute a result or if don't pass any path.
      */
     @Override
     public Integer call() throws Exception {
         Config config = ConfigFactory.parseFile(confFile);
-        if (config.hasPath("scanner.threshold")) {
-            threshold = config.getInt("scanner.threshold");
-        }
+
+        threshold = (config.hasPath("scanner.threshold"))
+                    ? config.getInt("scanner.threshold")
+                    : -1;
 
         if (config.hasPath("scanner.paths")) {
             List<String> thePaths = config.getStringList("scanner.paths");
-            paths = thePaths.stream().map(e -> Paths.get(e)).collect(Collectors.toList());
+            paths = mergePaths(thePaths);
+        } else {
+            System.out.println("'paths' property cannot be empty");
+            return -1;
         }
 
-        System.out.println(threshold);
+        mongoConnectionString =  (config.hasPath("scanner.db"))
+                                 ? config.getString("scanner.db")
+                                 : "mongodb://localhost:27017";
         return 0;
     }
 }
