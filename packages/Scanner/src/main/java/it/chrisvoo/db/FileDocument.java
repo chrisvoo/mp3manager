@@ -1,29 +1,91 @@
 package it.chrisvoo.db;
 
+import com.mpatric.mp3agic.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 /**
- * This will be the class passed to MongoClient
+ * This will be the class passed to MongoClient and maps the MP3 metadata
  */
 public class FileDocument {
-    private int size;
+    private long size;
     private int bitrate;
+    private BitrateType bitrateType;
     private String fileName;
     private long duration;
     private boolean hasCustomTag;
     private boolean hasID3v1Tag;
     private boolean hasID3v2Tag;
     private String albumTitle;
-    private String hasAlbumImage;
+    private boolean hasAlbumImage;
     private String albumImageMymeType;
     private byte[] albumImage;
     private String genre;
     private String title;
-    private int year;
+    private String artist;
+    private String year;
 
-    public int getSize() {
+    /**
+     * If you want to manually set all the properties, use this
+     * constructor
+     */
+    public FileDocument() {}
+
+    /**
+     * Automatically initialize all the properties with the ones belonging
+     * to the {@link Mp3File} file instance
+     * @param file The Mp3File instance
+     */
+    public FileDocument(Mp3File file) throws IOException, UnsupportedTagException, InvalidDataException, NoSuchTagException {
+        setBitrateType(file.isVbr() ? BitrateType.VARIABLE : BitrateType.CONSTANT).
+        setBitrate(file.getBitrate()).
+        setFileName(file.getFilename()).
+        setSize(file.getLength()).
+        setDuration(file.getLengthInSeconds()).
+        setHasCustomTag(file.hasCustomTag()).
+        setHasID3v1Tag(file.hasId3v1Tag()).
+        setHasID3v2Tag(file.hasId3v2Tag()).
+        setHasCustomTag(file.hasCustomTag());
+
+        ID3Wrapper wrapper = new ID3Wrapper(file.getId3v1Tag(), file.getId3v2Tag());
+
+        byte[] albumImage = wrapper.getAlbumImage();
+
+        if (albumImage != null) {
+           setHasAlbumImage(true).
+           setAlbumImageMymeType(wrapper.getAlbumImageMimeType()).
+           setAlbumImage(albumImage);
+        }
+
+        setGenre(wrapper.getGenreDescription()).
+        setArtist(
+           wrapper.getArtist() != null && !wrapper.getArtist().isBlank()
+            ? wrapper.getArtist().trim()
+            : wrapper.getAlbumArtist().trim()
+        ).
+        setTitle(wrapper.getTitle());
+
+        String year = wrapper.getYear();
+        if (year != null && !year.trim().isBlank()) {
+            setYear(year.trim());
+        } else if (hasID3v2Tag()) {
+            AbstractID3v2Tag tag = ID3v2TagFactory.createTag(
+                Files.readAllBytes(
+                    Paths.get(file.getFilename())
+                )
+            );
+            ID3v24Tag theTag = (ID3v24Tag) tag;
+            setYear(theTag.getRecordingTime());
+        }
+    }
+
+    public long getSize() {
         return size;
     }
 
-    public FileDocument setSize(int size) {
+    public FileDocument setSize(long size) {
         this.size = size;
         return this;
     }
@@ -64,7 +126,7 @@ public class FileDocument {
         return this;
     }
 
-    public boolean isHasID3v1Tag() {
+    public boolean hasID3v1Tag() {
         return hasID3v1Tag;
     }
 
@@ -73,7 +135,7 @@ public class FileDocument {
         return this;
     }
 
-    public boolean isHasID3v2Tag() {
+    public boolean hasID3v2Tag() {
         return hasID3v2Tag;
     }
 
@@ -91,11 +153,20 @@ public class FileDocument {
         return this;
     }
 
-    public String getHasAlbumImage() {
+    public String getArtist() {
+        return artist;
+    }
+
+    public FileDocument setArtist(String artist) {
+        this.artist = artist;
+        return this;
+    }
+
+    public boolean hasAlbumImage() {
         return hasAlbumImage;
     }
 
-    public FileDocument setHasAlbumImage(String hasAlbumImage) {
+    public FileDocument setHasAlbumImage(boolean hasAlbumImage) {
         this.hasAlbumImage = hasAlbumImage;
         return this;
     }
@@ -136,12 +207,21 @@ public class FileDocument {
         return this;
     }
 
-    public int getYear() {
+    public String getYear() {
         return year;
     }
 
-    public FileDocument setYear(int year) {
+    public FileDocument setYear(String year) {
         this.year = year;
+        return this;
+    }
+
+    public BitrateType getBitrateType() {
+        return bitrateType;
+    }
+
+    public FileDocument setBitrateType(BitrateType bitrateType) {
+        this.bitrateType = bitrateType;
         return this;
     }
 }
