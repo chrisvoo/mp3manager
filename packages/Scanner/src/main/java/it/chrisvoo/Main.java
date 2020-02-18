@@ -15,26 +15,6 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 public class Main implements Callable<Integer> {
-    /**
-     * Threshold over which the work will be split in two tasks.
-     * - If null (not specified), if will be automatically calculated divided the total amount of files by the
-     *   number of available processors.
-     * - If -1, if will use a value greater than the total amount of files to sequentially process the files (useful if
-     *   you don't have your music on an SDD. An HDD will worsen the performance).
-     */
-    private Integer threshold = null;
-
-    /**
-     * Mongo connection string
-     */
-    private String mongoConnectionString;
-
-    /**
-     * Paths to be scanned for music. If there's an intersection between path, they will be normalized. For example if
-     * path A includes path B, path B will be discarded. This avoids useless duplicates.
-     */
-    private List<Path> paths;
-
     @Option(names = {"-c", "--configuration"}, description = "Configuration file's path")
     private File confFile;
 
@@ -89,9 +69,10 @@ public class Main implements Callable<Integer> {
      */
     @Override
     public Integer call() throws Exception {
+        List<Path> paths;
         Config config = ConfigFactory.parseFile(confFile);
 
-        threshold = (config.hasPath("scanner.threshold"))
+        int threshold = (config.hasPath("scanner.threshold"))
                     ? config.getInt("scanner.threshold")
                     : -1;
 
@@ -103,9 +84,20 @@ public class Main implements Callable<Integer> {
             return -1;
         }
 
-        mongoConnectionString =  (config.hasPath("scanner.db"))
+        String mongoConnectionString =  (config.hasPath("scanner.db"))
                                  ? config.getString("scanner.db")
                                  : "mongodb://localhost:27017";
+
+        ScanConfig scanConfig =
+                new ScanConfig()
+                    .setChosenPaths(paths)
+                    .setThreshold(threshold)
+                    .setMongoConnectionUri(mongoConnectionString);
+
+        Scanner scanner = new Scanner(scanConfig);
+        ScanResult result = scanner.start();
+        System.out.println(result.toString());
+
         return 0;
     }
 }

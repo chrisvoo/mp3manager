@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -16,21 +17,14 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Scanner {
     private ArrayList<Path> files = new ArrayList<>();
-    private Path chosenPath;
-    private int threshold;
+    private ScanConfig config;
 
     /**
      * Creates an instance of the scanner.
-     * @param path A Path
-     * @param threshold A threshold which defines when to fork a new ScanTask
+     * @param config Configuration params
      */
-    public Scanner(String path, int threshold) {
-        try {
-            chosenPath = Paths.get(path);
-            this.threshold = threshold;
-        } catch (Exception e) {
-            System.out.printf("Cannot read %s", path);
-        }
+    public Scanner(ScanConfig config) {
+        this.config = config;
     }
 
     /**
@@ -40,17 +34,35 @@ public class Scanner {
      * size and eventual errors encountered during the process
      */
     public ScanResult start() {
-        int nThreads = Runtime.getRuntime().availableProcessors();
-        System.out.printf("Running scanner with a pool of %d threads\n", nThreads);
-
-        boolean isListOk = listFiles(chosenPath);
-        if (!isListOk) {
-            return null;
+        List<Path> chosenPaths = config.getChosenPaths();
+        for (Path chosenPath : chosenPaths) {
+            boolean isListOk = listFiles(chosenPath);
+            if (!isListOk) {
+                return null;
+            }
         }
+
         System.out.println("Collected " + files.size() + " paths");
 
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        boolean usingProcessors = false;
+
+        // let's calculate the threshold dividing the total number of files by the total available processors.
+        if (config.getThreshold() == -1) {
+            config.setThreshold(files.size() / nThreads);
+            usingProcessors = true;
+        } else if (config.getThreshold() < files.size()) {
+            usingProcessors = true;
+        }
+
+        if (usingProcessors) {
+            System.out.printf("Running scanner with a pool of %d threads\n", nThreads);
+        } else {
+            System.out.println("Running scanner in single-threaded mode");
+        }
+
         ForkJoinPool pool = new ForkJoinPool(nThreads);
-        ScanTask task = new ScanTask(files.toArray(new Path[0]), threshold);
+        ScanTask task = new ScanTask(files, config);
         return pool.invoke(task);
     }
 

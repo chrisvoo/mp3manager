@@ -17,7 +17,13 @@ public class ScannerTest {
      */
     @Test
     public void canScanADirectoryTree() {
-        Scanner scanner = new Scanner("./target/test-classes/tree", 3);
+        ScanConfig config =
+                new ScanConfig()
+                        .setThreshold(3)
+                        .setChosenPaths(
+                            List.of(Paths.get("./target/test-classes/tree"))
+                        );
+        Scanner scanner = new Scanner(config);
         ScanResult result = scanner.start();
 
         assertEquals(37421248, result.getTotalBytes());

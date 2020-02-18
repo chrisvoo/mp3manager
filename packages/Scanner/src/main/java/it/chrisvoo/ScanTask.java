@@ -6,6 +6,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
 /**
@@ -13,16 +14,17 @@ import java.util.concurrent.RecursiveTask;
  * the work gets split.
  */
 public class ScanTask extends RecursiveTask<ScanResult> {
-    private int threshold;
-    private Path[] paths;
+    private ScanConfig config;
+    private List<Path> paths;
 
-    public ScanTask(Path[] paths) {
-        this(paths, 100);
-    }
-
-    public ScanTask(Path[] paths, int threshold) {
+    /**
+     * An intance of a RecursiveTask subclass.
+     * @param paths List of paths to be scanned
+     * @param config Configuration which will be passed to every {@link ScanTask} instance
+     */
+    public ScanTask(List<Path> paths, ScanConfig config) {
         this.paths = paths;
-        this.threshold = threshold;
+        this.config = config;
     }
 
     /**
@@ -34,11 +36,12 @@ public class ScanTask extends RecursiveTask<ScanResult> {
     protected ScanResult compute() {
         ScanResult result = new ScanResult();
 
-        if (paths == null || paths.length == 0) {
+        if (paths == null || paths.isEmpty()) {
             return result;
         }
 
-        if (paths.length < threshold) {
+        // it directly parse the list...
+        if (paths.size() < config.getThreshold()) {
             for (Path path : paths) {
                 try {
                     Mp3File mp3 = new Mp3File(path);
@@ -50,11 +53,12 @@ public class ScanTask extends RecursiveTask<ScanResult> {
                 }
             }
         } else {
-            Path[] subset1 = Arrays.copyOfRange(paths, 0, paths.length / 2);
-            ScanTask subTaskOne = new ScanTask(subset1, threshold);
+            // otherwise it split the job in two tasks
+            List<Path> subset1 = paths.subList(0, paths.size() / 2);
+            ScanTask subTaskOne = new ScanTask(subset1, config);
 
-            Path[] subset2 = Arrays.copyOfRange(paths, paths.length / 2, paths.length);
-            ScanTask subTaskTwo = new ScanTask(subset2, threshold);
+            List<Path> subset2 = paths.subList(paths.size() / 2, paths.size());
+            ScanTask subTaskTwo = new ScanTask(subset2, config);
 
             invokeAll(subTaskOne, subTaskTwo);
 
