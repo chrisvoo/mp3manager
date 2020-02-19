@@ -13,10 +13,11 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: info.picocli:picocli:4.1.4" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe:config:1.4.0" level="project" />
-    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-reactivestreams:4.0.0-beta1" level="project" />
-    <orderEntry type="library" name="Maven: org.mongodb:bson:4.0.0-beta1" level="project" />
-    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:4.0.0-beta1" level="project" />
-    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-reactivestreams:1.13.0" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-async:3.12.0" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:bson:3.12.0" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:3.12.0" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.3" level="project" />
     <orderEntry type="library" name="Maven: com.mpatric:mp3agic:0.9.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-api:5.6.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apiguardian:apiguardian-api:1.1.0" level="project" />

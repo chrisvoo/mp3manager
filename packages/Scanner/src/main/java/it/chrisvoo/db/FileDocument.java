@@ -1,5 +1,7 @@
 package it.chrisvoo.db;
 
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mpatric.mp3agic.*;
 
 import java.io.IOException;
@@ -20,7 +22,7 @@ public class FileDocument {
     private boolean hasID3v2Tag;
     private String albumTitle;
     private boolean hasAlbumImage;
-    private String albumImageMymeType;
+    private String albumImageMimeType;
     private byte[] albumImage;
     private String genre;
     private String title;
@@ -55,7 +57,7 @@ public class FileDocument {
 
         if (albumImage != null) {
            setHasAlbumImage(true).
-           setAlbumImageMymeType(wrapper.getAlbumImageMimeType()).
+           setAlbumImageMimeType(wrapper.getAlbumImageMimeType()).
            setAlbumImage(albumImage);
         }
 
@@ -65,7 +67,8 @@ public class FileDocument {
             ? wrapper.getArtist().trim()
             : wrapper.getAlbumArtist().trim()
         ).
-        setTitle(wrapper.getTitle());
+        setTitle(wrapper.getTitle()).
+        setAlbumTitle(wrapper.getAlbum());
 
         String year = wrapper.getYear();
         if (year != null && !year.trim().isBlank()) {
@@ -117,7 +120,7 @@ public class FileDocument {
         return this;
     }
 
-    public boolean isHasCustomTag() {
+    public boolean hasCustomTag() {
         return hasCustomTag;
     }
 
@@ -171,12 +174,12 @@ public class FileDocument {
         return this;
     }
 
-    public String getAlbumImageMymeType() {
-        return albumImageMymeType;
+    public String getAlbumImageMimeType() {
+        return albumImageMimeType;
     }
 
-    public FileDocument setAlbumImageMymeType(String albumImageMymeType) {
-        this.albumImageMymeType = albumImageMymeType;
+    public FileDocument setAlbumImageMimeType(String albumImageMimeType) {
+        this.albumImageMimeType = albumImageMimeType;
         return this;
     }
 

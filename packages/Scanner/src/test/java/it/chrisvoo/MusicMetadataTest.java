@@ -1,6 +1,8 @@
 package it.chrisvoo;
 
 import com.mpatric.mp3agic.*;
+import it.chrisvoo.db.BitrateType;
+import it.chrisvoo.db.FileDocument;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -22,37 +24,27 @@ public class MusicMetadataTest {
     public void canReadMetadata() {
         try {
             Path path = Paths.get("./target/test-classes/Under The Ice (Scene edit).mp3");
-            Mp3File mp3 = new Mp3File(path);
-
-            assertFalse(mp3.isVbr());
-            assertEquals(5235428, mp3.getLength());
-            assertEquals(320, mp3.getBitrate());
-            assertEquals("Joint stereo",  mp3.getChannelMode());
+            FileDocument musicFile = new FileDocument(new Mp3File(path));
+            assertEquals(BitrateType.CONSTANT, musicFile.getBitrateType());
+            assertEquals(5235428, musicFile.getSize());
+            assertEquals(320, musicFile.getBitrate());
             assertEquals(
                     "." + File.separator +
                     "target" + File.separator +
                     "test-classes" + File.separator +
                     "Under The Ice (Scene edit).mp3",
-                    mp3.getFilename()
+                    musicFile.getFileName()
             );
-            assertEquals(129, mp3.getLengthInSeconds());
-            assertEquals(44100, mp3.getSampleRate());
-            assertFalse(mp3.hasCustomTag());
-            assertFalse(mp3.hasId3v1Tag());
-            assertTrue(mp3.hasId3v2Tag());
-
-            ID3Wrapper wrapper = new ID3Wrapper(mp3.getId3v1Tag(), mp3.getId3v2Tag());
-            assertEquals("Lives Of The Artists: Follow Me Down - Soundtrack", wrapper.getAlbum());
-            assertEquals("image/jpeg", wrapper.getAlbumImageMimeType());
-            assertNull(wrapper.getGenreDescription());
-            assertEquals("UNKLE", wrapper.getArtist());
-            assertEquals("Under The Ice (Scene edit)", wrapper.getTitle());
-            assertNull(wrapper.getYear());
-
-            AbstractID3v2Tag tag = ID3v2TagFactory.createTag(Files.readAllBytes(path));
-            assertTrue(tag instanceof ID3v24Tag);
-            ID3v24Tag theTag = (ID3v24Tag) tag;
-            assertEquals("2010-01-01", theTag.getRecordingTime());
+            assertEquals(129, musicFile.getDuration());
+            assertFalse(musicFile.hasCustomTag());
+            assertFalse(musicFile.hasID3v1Tag());
+            assertTrue(musicFile.hasID3v2Tag());
+            assertEquals("Lives Of The Artists: Follow Me Down - Soundtrack", musicFile.getAlbumTitle());
+            assertEquals("image/jpeg", musicFile.getAlbumImageMimeType());
+            assertNull(musicFile.getGenre());
+            assertEquals("UNKLE", musicFile.getArtist());
+            assertEquals("Under The Ice (Scene edit)", musicFile.getTitle());
+            assertEquals("2010-01-01", musicFile.getYear());
         } catch (Exception e) {
             fail("Cannot read the metadata", e);
         }
