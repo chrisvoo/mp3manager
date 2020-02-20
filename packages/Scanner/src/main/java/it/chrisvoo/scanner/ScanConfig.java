@@ -1,4 +1,7 @@
-package it.chrisvoo;
+package it.chrisvoo.scanner;
+
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -18,9 +21,9 @@ public class ScanConfig {
     private int threshold;
 
     /**
-     * Mongo connection string
+     * Music manager database name
      */
-    private String mongoConnectionUri;
+    private MongoDatabase database;
 
     public List<Path> getChosenPaths() {
         return chosenPaths;
@@ -40,12 +43,12 @@ public class ScanConfig {
         return this;
     }
 
-    public String getMongoConnectionUri() {
-        return mongoConnectionUri;
+    public MongoDatabase getDatabase() {
+        return database;
     }
 
-    public ScanConfig setMongoConnectionUri(String mongoConnectionUri) {
-        this.mongoConnectionUri = mongoConnectionUri;
+    public ScanConfig setDatabase(MongoDatabase database) {
+        this.database = database;
         return this;
     }
 }

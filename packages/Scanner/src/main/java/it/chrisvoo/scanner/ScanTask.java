@@ -1,11 +1,13 @@
-package it.chrisvoo;
+package it.chrisvoo.scanner;
 
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoCollection;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 import com.mpatric.mp3agic.Mp3File;
+import it.chrisvoo.db.FileDocument;
+import org.bson.Document;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
@@ -36,6 +38,10 @@ public class ScanTask extends RecursiveTask<ScanResult> {
     protected ScanResult compute() {
         ScanResult result = new ScanResult();
 
+        MongoCollection<FileDocument> collection = config
+                .getDatabase()
+                .getCollection("files", FileDocument.class);
+
         if (paths == null || paths.isEmpty()) {
             return result;
         }
@@ -44,10 +50,10 @@ public class ScanTask extends RecursiveTask<ScanResult> {
         if (paths.size() < config.getThreshold()) {
             for (Path path : paths) {
                 try {
-                    Mp3File mp3 = new Mp3File(path);
+                    FileDocument audioFile = new FileDocument(new Mp3File(path));
                     result
                         .joinFiles(1)
-                        .joinBytes(mp3.getLength());
+                        .joinBytes(audioFile.getSize());
                 } catch (Exception e) {
                     result.addError(path, e.getMessage());
                 }

@@ -1,4 +1,4 @@
-package it.chrisvoo;
+package it.chrisvoo.scanner;
 
 import java.nio.file.Path;
 import java.util.HashMap;

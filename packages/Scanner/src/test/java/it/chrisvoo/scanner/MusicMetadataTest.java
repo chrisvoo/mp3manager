@@ -1,4 +1,4 @@
-package it.chrisvoo;
+package it.chrisvoo.scanner;
 
 import com.mpatric.mp3agic.*;
 import it.chrisvoo.db.BitrateType;
@@ -6,7 +6,6 @@ import it.chrisvoo.db.FileDocument;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

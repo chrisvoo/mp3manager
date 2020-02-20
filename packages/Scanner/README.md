@@ -19,7 +19,7 @@ This configuration file follows the [HOCON format](https://github.com/lightbend/
 processors. If this value is less than the total number of files, the app will split the task into subtasks, otherwise it 
 will act as a single-threaded app.
 * `music_paths`: list of paths to scan. For Windows users, escape the backslashes.
-* `db`: Mongo connection's URI. Default: `mongodb://localhost:27017/music_manager`
+* `db`: Mongo connection's details (host, port, username, ...). Default connection string: `mongodb://localhost:27017/music_manager`
 
 
 ## Resources

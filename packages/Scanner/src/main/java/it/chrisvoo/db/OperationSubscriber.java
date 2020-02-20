@@ -1,4 +1,5 @@
-package it.chrisvoo;
+package it.chrisvoo.db;
+
 
 import com.mongodb.MongoTimeoutException;
 import org.reactivestreams.Subscriber;
@@ -23,11 +24,7 @@ public class OperationSubscriber<T> implements Subscriber<T> {
     }
 
     @Override
-    public void onSubscribe(Subscription subscription) {
-        System.out.println("onSubscribe: " + subscription.toString());
-        this.subscription = subscription;
-        this.subscription.request(Integer.MAX_VALUE);
-    }
+    public void onSubscribe(Subscription subscription) { this.subscription = subscription; }
 
     /**
      * Once the document has been inserted the onNext method will be called and it will print “Inserted!”
@@ -36,19 +33,14 @@ public class OperationSubscriber<T> implements Subscriber<T> {
      */
     @Override
     public void onNext(T item) {
-        System.out.println("Inserted");
+        received.add(item);
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        System.out.printf("Failed: %s", throwable.getMessage());
-    }
+    public void onError(Throwable throwable) { this.errors.add(throwable); }
 
     @Override
-    public void onComplete() {
-        latch.countDown();
-        System.out.println("Done");
-    }
+    public void onComplete() { latch.countDown(); }
 
     public Subscription getSubscription() {
         return subscription;
@@ -67,6 +59,10 @@ public class OperationSubscriber<T> implements Subscriber<T> {
 
     public boolean isCompleted() {
         return completed;
+    }
+
+    public List<T> get() throws Throwable {
+        return await().getReceived();
     }
 
     public List<T> get(final long timeout, final TimeUnit unit) throws Throwable {
@@ -88,3 +84,4 @@ public class OperationSubscriber<T> implements Subscriber<T> {
         return this;
     }
 }
+

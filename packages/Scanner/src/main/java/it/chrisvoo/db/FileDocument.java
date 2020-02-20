@@ -1,29 +1,53 @@
 package it.chrisvoo.db;
 
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mpatric.mp3agic.*;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.types.ObjectId;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * This will be the class passed to MongoClient and maps the MP3 metadata
+ * This will be the class passed to MongoClient and maps the MP3 metadata.
+ * By default all POJOs <b>must</b> include a public or protected, empty, no arguments, constructor.
  */
 public class FileDocument {
+    @BsonId
+    private ObjectId id;
+
     private long size;
     private int bitrate;
+
+    @BsonProperty(value = "bitrate_type")
     private BitrateType bitrateType;
+
+    @BsonProperty(value = "filename")
     private String fileName;
     private long duration;
+
+    @BsonProperty(value = "has_custom_tag")
     private boolean hasCustomTag;
+
+    @BsonProperty(value = "has_id3v1_tag")
     private boolean hasID3v1Tag;
+
+    @BsonProperty(value = "has_id3v2_tag")
     private boolean hasID3v2Tag;
+
+    @BsonProperty(value = "album_title")
     private String albumTitle;
+
+    @BsonProperty(value = "has_album_image")
     private boolean hasAlbumImage;
+
+    @BsonProperty(value = "album_image_mime_type")
     private String albumImageMimeType;
+
+    @BsonProperty(value = "album_image")
     private byte[] albumImage;
+
     private String genre;
     private String title;
     private String artist;
@@ -226,5 +250,30 @@ public class FileDocument {
     public FileDocument setBitrateType(BitrateType bitrateType) {
         this.bitrateType = bitrateType;
         return this;
+    }
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public FileDocument setId(ObjectId id) {
+        this.id = id;
+        return this;
+    }
+
+    public boolean isHasCustomTag() {
+        return hasCustomTag;
+    }
+
+    public boolean isHasID3v1Tag() {
+        return hasID3v1Tag;
+    }
+
+    public boolean isHasID3v2Tag() {
+        return hasID3v2Tag;
+    }
+
+    public boolean isHasAlbumImage() {
+        return hasAlbumImage;
     }
 }
