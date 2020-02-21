@@ -85,12 +85,14 @@ public class FileDocument {
            setAlbumImage(albumImage);
         }
 
-        setGenre(wrapper.getGenreDescription()).
-        setArtist(
-           wrapper.getArtist() != null && !wrapper.getArtist().isBlank()
-            ? wrapper.getArtist().trim()
-            : wrapper.getAlbumArtist().trim()
-        ).
+        setGenre(wrapper.getGenreDescription());
+
+        if (wrapper.getArtist() != null && !wrapper.getArtist().isBlank()) {
+            setArtist(wrapper.getArtist().trim());
+        } else if (wrapper.getAlbumArtist() != null && !wrapper.getAlbumArtist().isBlank()) {
+            setArtist(wrapper.getAlbumArtist().trim());
+        }
+
         setTitle(wrapper.getTitle()).
         setAlbumTitle(wrapper.getAlbum());
 
@@ -103,8 +105,10 @@ public class FileDocument {
                     Paths.get(file.getFilename())
                 )
             );
-            ID3v24Tag theTag = (ID3v24Tag) tag;
-            setYear(theTag.getRecordingTime());
+            if (tag instanceof ID3v24Tag) {
+                ID3v24Tag theTag = (ID3v24Tag) tag;
+                setYear(theTag.getRecordingTime());
+            }
         }
     }
 

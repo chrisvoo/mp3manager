@@ -4,16 +4,12 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import it.chrisvoo.scanner.ScanConfig;
-import it.chrisvoo.scanner.ScanResult;
-import it.chrisvoo.scanner.Scanner;
 import it.chrisvoo.utils.DbUtils;
-import it.chrisvoo.utils.FileSystemUtils;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,8 +45,15 @@ public class ScannerTest {
         ScanResult result = scanner.start();
         client.close();
 
+        if (result.hasErrors()) {
+            for (Map.Entry<String,String> entry : result.getErrors().entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+            fail("There are " + result.getErrors().size() + " errors");
+        }
+
         assertEquals(37421248, result.getTotalBytes());
-        assertEquals(13, result.getTotalFiles());
-        assertFalse(result.hasErrors());
+        assertEquals(13, result.getTotalFilesScanned());
+
     }
 }

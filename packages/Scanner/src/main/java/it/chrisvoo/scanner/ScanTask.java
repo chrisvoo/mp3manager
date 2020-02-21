@@ -1,15 +1,18 @@
 package it.chrisvoo.scanner;
 
-import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.*;
 import com.mongodb.reactivestreams.client.MongoCollection;
-import com.mongodb.reactivestreams.client.MongoDatabase;
 import com.mpatric.mp3agic.Mp3File;
 import it.chrisvoo.db.FileDocument;
-import org.bson.Document;
+import it.chrisvoo.db.OperationSubscriber;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
+
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * It process by default up to 100 files. If it receives more than this,
@@ -38,25 +41,54 @@ public class ScanTask extends RecursiveTask<ScanResult> {
     protected ScanResult compute() {
         ScanResult result = new ScanResult();
 
-        MongoCollection<FileDocument> collection = config
-                .getDatabase()
-                .getCollection("files", FileDocument.class);
-
         if (paths == null || paths.isEmpty()) {
             return result;
         }
 
         // it directly parse the list...
         if (paths.size() < config.getThreshold()) {
+
+            MongoCollection<FileDocument> collection = config
+                    .getDatabase()
+                    .getCollection("files", FileDocument.class);
+
+            OperationSubscriber<BulkWriteResult> subBulk = new OperationSubscriber<>();
+
+            List<WriteModel<FileDocument>> docs = new ArrayList<>();
+
             for (Path path : paths) {
                 try {
                     FileDocument audioFile = new FileDocument(new Mp3File(path));
+
+                    docs.add(
+                        new ReplaceOneModel<>(
+                            eq( "filename", audioFile.getFileName()),
+                            audioFile,
+                            new ReplaceOptions().upsert(true)
+                        )
+                    );
+
                     result
-                        .joinFiles(1)
+                        .joinScannedFiles(1)
                         .joinBytes(audioFile.getSize());
                 } catch (Exception e) {
                     result.addError(path, e.getMessage());
                 }
+            }
+
+            collection.bulkWrite(docs).subscribe(subBulk);
+            OperationSubscriber<BulkWriteResult> bulkResult = null;
+            try {
+                bulkResult = subBulk.await();
+                List<BulkWriteResult> bulkList = bulkResult.getReceived();
+                BulkWriteResult writeRes = bulkList.get(0);
+                result.joinInsertedFiles(
+                        writeRes.getInsertedCount() +
+                        writeRes.getUpserts().size() +
+                        writeRes.getMatchedCount()
+                );
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
         } else {
             // otherwise it split the job in two tasks

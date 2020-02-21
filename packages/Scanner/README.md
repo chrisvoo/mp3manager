@@ -1,8 +1,11 @@
 # Scanner
 
-This is a command-line app which scans a list of paths and insert into MongoDB all paths and metadata relative to the
-MP3 files found.  
-The app uses the Java high level concurrency API, more specifically with the [ForkJoin framework](https://docs.oracle.com/javase/tutorial/essential/concurrency/forkjoin.html).
+This is a command-line app which scans a list of paths and does bulk upserts into MongoDB of all paths and metadata
+relative to the MP3 files found. This means that if you change the metadata of a file, its data will be updated, but 
+since the matching key is the file path, if you change its location, it will be duplicated. A future todo is a watchdog
+on music directories to updated the db once such events occur.  
+The app uses the Java high-level concurrency API, more specifically with the [ForkJoin framework](https://docs.oracle.com/javase/tutorial/essential/concurrency/forkjoin.html).
+  
 **NOTE**: be sure to put your music files on an SSD, otherwise your HDD will defeat the forkjoin strategy, worsening the
 overall performance compared to a sequential scan. If you don't have any SSD, just set a threshold higher than the total
 number of files you want to scan to use a sequential scan strategy. [Read more in my blog](https://codepuzzling.tumblr.com/post/190842496592/parsing-music-files-in-parallel) about performance.
