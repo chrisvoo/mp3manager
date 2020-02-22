@@ -37,7 +37,13 @@ public class OperationSubscriber<T> implements Subscriber<T> {
     }
 
     @Override
-    public void onError(Throwable throwable) { this.errors.add(throwable); }
+    public void onError(Throwable throwable) {
+        System.out.println(
+                throwable.getClass().getSimpleName() + ": " +
+                throwable.getMessage()
+        );
+        this.errors.add(throwable);
+    }
 
     @Override
     public void onComplete() { latch.countDown(); }

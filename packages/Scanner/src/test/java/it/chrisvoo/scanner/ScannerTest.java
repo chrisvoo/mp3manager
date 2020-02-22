@@ -1,10 +1,13 @@
 package it.chrisvoo.scanner;
 
 import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import it.chrisvoo.utils.DbUtils;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
@@ -13,6 +16,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -24,15 +29,20 @@ public class ScannerTest {
      */
     @Test
     public void canScanADirectoryTree() {
-        Logger.getLogger( "org.mongodb.driver" ).setLevel(Level.WARNING);
+        Logger.getLogger( "org.mongodb.driver" ).setLevel(Level.FINE);
         Config appConf = ConfigFactory.parseFile(
                 Paths.get("./application.conf").toFile()
         );
-        String databaseName = appConf.getString("scanner.db.dbname");
-        assertEquals("music_manager", appConf.getString("scanner.db.dbname"));
+
+        CodecRegistry pojoCodecRegistry = fromRegistries(
+             MongoClients.getDefaultCodecRegistry(),
+             fromProviders(PojoCodecProvider.builder().automatic(true).build())
+        );
 
         MongoClient client = DbUtils.getClient(appConf);
-        MongoDatabase database = client.getDatabase(databaseName);
+        MongoDatabase database = client
+                .getDatabase("music_manager_test")
+                .withCodecRegistry(pojoCodecRegistry);
 
         ScanConfig config =
                 new ScanConfig()
@@ -52,8 +62,8 @@ public class ScannerTest {
             fail("There are " + result.getErrors().size() + " errors");
         }
 
-        assertEquals(37421248, result.getTotalBytes());
-        assertEquals(13, result.getTotalFilesScanned());
-
+        assertEquals(42656676, result.getTotalBytes());
+        assertEquals(14, result.getTotalFilesScanned());
+        assertEquals(14, result.getTotalFilesInserted());
     }
 }

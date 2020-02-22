@@ -23,4 +23,10 @@ public class FileSystemUtilsTest {
         assertTrue(result.get(0).endsWith("main") || result.get(0).endsWith("target"));
         assertTrue(result.get(1).endsWith("main") || result.get(0).endsWith("target"));
     }
+
+    @Test
+    public void canDisplayHumanBytes() {
+        long theBytes = 12256987;
+        assertEquals("11.7 MB", FileSystemUtils.formatSize(theBytes));
+    }
 }

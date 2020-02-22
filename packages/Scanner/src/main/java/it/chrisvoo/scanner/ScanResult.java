@@ -1,6 +1,9 @@
 package it.chrisvoo.scanner;
 
+import it.chrisvoo.utils.FileSystemUtils;
+
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +25,8 @@ public class ScanResult {
      * Total files inserted into MongoDB
      */
     private int totalFilesInserted;
+
+    private Duration totalTimeElapsed;
 
     /**
      * Eventual errors thrown during the process. The key is the path, the value the error message.
@@ -185,6 +190,7 @@ public class ScanResult {
            return this;
        }
 
+       // we do not consider the total time elapsed, we just use that field in the Main class
        return this.joinErrors(result.getErrors())
             .joinScannedFiles(result.getTotalFilesScanned())
             .joinInsertedFiles(result.getTotalFilesInserted())
@@ -192,16 +198,48 @@ public class ScanResult {
     }
 
     /**
+     * It returns the total duration of a scanning activity
+     * @return The duration
+     */
+    public Duration getTotalTimeElapsed() {
+        return totalTimeElapsed;
+    }
+
+    /**
+     * Sets the total duration of a scanning activity. It's used in {@link it.chrisvoo.Main}
+     * @param totalTimeElapsed The total duration
+     * @return This instance
+     */
+    public ScanResult setTotalTimeElapsed(Duration totalTimeElapsed) {
+        this.totalTimeElapsed = totalTimeElapsed;
+        return this;
+    }
+
+    /**
      * Prints details about the parsing activity
      * @return Stats about the scanner activity
      */
     public String toString() {
-        return String.format("Results: %n" +
+        long minElapsed = totalTimeElapsed.toMinutesPart();
+        long secsElapsed = totalTimeElapsed.toSecondsPart();
+        long millisElapsed = totalTimeElapsed.toMillisPart();
+        String durationFormatted = minElapsed + ":" + secsElapsed + ":" + millisElapsed;
+
+        String result = String.format("%nScanning finished in " + durationFormatted + ". Results: %n" +
                "\t- total files scanned: " + totalFilesScanned + "%n" +
                "\t- total files inserted: " + totalFilesInserted +
                 "(" + (totalFilesInserted * 100 / totalFilesScanned) + "\\% %n" +
-               "\t- total bytes: " + totalBytes + "%n" +
-               "\t- total errors: " + errors.size() + "%n"
+               "\t- total bytes: " + FileSystemUtils.formatSize(totalBytes) + "%n" +
+               "\t- total errors: " + errors.size() + "%n%n"
         );
+
+        if (hasErrors()) {
+            for (Map.Entry<String,String> entry : getErrors().entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+            System.out.println();
+        }
+
+        return result;
     }
 }

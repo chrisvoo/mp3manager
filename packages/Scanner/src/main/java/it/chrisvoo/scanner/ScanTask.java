@@ -47,18 +47,12 @@ public class ScanTask extends RecursiveTask<ScanResult> {
 
         // it directly parse the list...
         if (paths.size() < config.getThreshold()) {
-
-            MongoCollection<FileDocument> collection = config
-                    .getDatabase()
-                    .getCollection("files", FileDocument.class);
-
-            OperationSubscriber<BulkWriteResult> subBulk = new OperationSubscriber<>();
-
             List<WriteModel<FileDocument>> docs = new ArrayList<>();
 
             for (Path path : paths) {
                 try {
                     FileDocument audioFile = new FileDocument(new Mp3File(path));
+                    audioFile.setFileName(path.normalize().toAbsolutePath().toString());
 
                     docs.add(
                         new ReplaceOneModel<>(
@@ -76,19 +70,25 @@ public class ScanTask extends RecursiveTask<ScanResult> {
                 }
             }
 
-            collection.bulkWrite(docs).subscribe(subBulk);
-            OperationSubscriber<BulkWriteResult> bulkResult = null;
-            try {
-                bulkResult = subBulk.await();
-                List<BulkWriteResult> bulkList = bulkResult.getReceived();
-                BulkWriteResult writeRes = bulkList.get(0);
-                result.joinInsertedFiles(
-                        writeRes.getInsertedCount() +
-                        writeRes.getUpserts().size() +
-                        writeRes.getMatchedCount()
-                );
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            if (!docs.isEmpty()) {
+                MongoCollection<FileDocument> collection = config
+                        .getDatabase()
+                        .getCollection("files", FileDocument.class);
+
+                OperationSubscriber<BulkWriteResult> subBulk = new OperationSubscriber<>();
+                collection.bulkWrite(docs).subscribe(subBulk);
+
+                try {
+                    List<BulkWriteResult> bulkList = subBulk.get();
+                    BulkWriteResult writeRes = bulkList.get(0);
+                    result.joinInsertedFiles(
+                            writeRes.getInsertedCount() +
+                                    writeRes.getUpserts().size() +
+                                    writeRes.getMatchedCount()
+                    );
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
             }
         } else {
             // otherwise it split the job in two tasks

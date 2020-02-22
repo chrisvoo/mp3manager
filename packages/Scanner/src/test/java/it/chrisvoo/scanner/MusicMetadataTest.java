@@ -22,7 +22,7 @@ public class MusicMetadataTest {
     @Test
     public void canReadMetadata() {
         try {
-            Path path = Paths.get("./target/test-classes/Under The Ice (Scene edit).mp3");
+            Path path = Paths.get("./target/test-classes/tree/Under The Ice (Scene edit).mp3");
             FileDocument musicFile = new FileDocument(new Mp3File(path));
             assertEquals(BitrateType.CONSTANT, musicFile.getBitrateType());
             assertEquals(5235428, musicFile.getSize());
@@ -30,7 +30,7 @@ public class MusicMetadataTest {
             assertEquals(
                     "." + File.separator +
                     "target" + File.separator +
-                    "test-classes" + File.separator +
+                    "test-classes" + File.separator + "tree" + File.separator +
                     "Under The Ice (Scene edit).mp3",
                     musicFile.getFileName()
             );

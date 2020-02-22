@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -47,5 +48,16 @@ public class FileSystemUtils {
                 .filter(Objects::nonNull)
                 .filter(p -> paths.stream().noneMatch(path -> isChild(p, Paths.get(path).normalize().toAbsolutePath())))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * It gives a human readable representation of the total number of bytes passed as arguments.
+     * @param v a long representing the amount of bytes to show
+     * @return A human readable representation of the bytes.
+     */
+    public static String formatSize(long v) {
+        if (v < 1024) return v + " B";
+        int z = (63 - Long.numberOfLeadingZeros(v)) / 10;
+        return String.format(Locale.ENGLISH, "%.1f %sB", (double)v / (1L << (z*10)), " KMGTPE".charAt(z));
     }
 }
