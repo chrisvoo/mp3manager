@@ -1,9 +1,14 @@
 package it.chrisvoo.scanner;
 
 import it.chrisvoo.utils.FileSystemUtils;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.types.ObjectId;
 
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,26 +16,37 @@ import java.util.Map;
  * This is the result returned by the RecursiveTask.
  */
 public class ScanResult {
+    @BsonId
+    private ObjectId id;
+
     /**
      * Total size of all the parsed music files
      */
+    @BsonProperty(value = "total_bytes")
     private long totalBytes;
 
     /**
      * Total files parsed.
      */
+    @BsonProperty(value = "total_files_scanned")
     private int totalFilesScanned;
 
     /**
      * Total files inserted into MongoDB
      */
+    @BsonProperty(value = "total_files_inserted")
     private int totalFilesInserted;
 
-    private Duration totalTimeElapsed;
+    @BsonIgnore
+    private Duration totalDuration;
+
+    @BsonProperty(value = "total_elapsed_time")
+    private String elapsedTime;
 
     /**
      * Eventual errors thrown during the process. The key is the path, the value the error message.
      */
+    @BsonIgnore
     private Map<String, String> errors;
 
     /**
@@ -201,18 +217,58 @@ public class ScanResult {
      * It returns the total duration of a scanning activity
      * @return The duration
      */
-    public Duration getTotalTimeElapsed() {
-        return totalTimeElapsed;
+    public String formatTotalDuration() {
+        long minElapsed = totalDuration.toMinutesPart();
+        long secsElapsed = totalDuration.toSecondsPart();
+        long millisElapsed = totalDuration.toMillisPart();
+
+        String durationFormatted = "";
+        if (minElapsed != 0) {
+            durationFormatted += minElapsed + " minutes";
+        }
+
+        if (secsElapsed != 0) {
+            durationFormatted += minElapsed != 0 ? ", " : "";
+            durationFormatted += secsElapsed + " seconds";
+        }
+
+        durationFormatted += (minElapsed != 0 || secsElapsed != 0) ? " and " : "";
+        durationFormatted += millisElapsed + " milliseconds";
+        return durationFormatted;
     }
 
     /**
      * Sets the total duration of a scanning activity. It's used in {@link it.chrisvoo.Main}
-     * @param totalTimeElapsed The total duration
+     * @param totalDuration The total duration
      * @return This instance
      */
-    public ScanResult setTotalTimeElapsed(Duration totalTimeElapsed) {
-        this.totalTimeElapsed = totalTimeElapsed;
+    public ScanResult setTotalDuration(Duration totalDuration) {
+        this.totalDuration = totalDuration;
+        elapsedTime = formatTotalDuration();
         return this;
+    }
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public ScanResult setId(ObjectId id) {
+        this.id = id;
+        return this;
+    }
+
+    public String getElapsedTime() {
+        return elapsedTime;
+    }
+
+    @BsonProperty(value = "total_errors")
+    public int getTotalErrors() {
+        return errors.size();
+    }
+
+    @BsonProperty(value = "scanning_date")
+    public Date getScanningDate() {
+        return new Date();
     }
 
     /**
@@ -220,15 +276,11 @@ public class ScanResult {
      * @return Stats about the scanner activity
      */
     public String toString() {
-        long minElapsed = totalTimeElapsed.toMinutesPart();
-        long secsElapsed = totalTimeElapsed.toSecondsPart();
-        long millisElapsed = totalTimeElapsed.toMillisPart();
-        String durationFormatted = minElapsed + ":" + secsElapsed + ":" + millisElapsed;
-
+        String durationFormatted = formatTotalDuration();
         String result = String.format("%nScanning finished in " + durationFormatted + ". Results: %n" +
                "\t- total files scanned: " + totalFilesScanned + "%n" +
                "\t- total files inserted: " + totalFilesInserted +
-                "(" + (totalFilesInserted * 100 / totalFilesScanned) + "\\% %n" +
+                " (" + (totalFilesInserted * 100 / totalFilesScanned) + " %%) %n" +
                "\t- total bytes: " + FileSystemUtils.formatSize(totalBytes) + "%n" +
                "\t- total errors: " + errors.size() + "%n%n"
         );

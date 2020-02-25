@@ -1,12 +1,10 @@
 package it.chrisvoo.db;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static com.mongodb.client.model.Filters.*;
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
-
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.InsertOneModel;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.WriteModel;
 import com.mongodb.reactivestreams.client.*;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -19,6 +17,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.mongodb.client.model.Filters.eq;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  *  Reactive Streams is an initiative to provide a standard for asynchronous stream processing with
  *  non-blocking back pressure.
@@ -30,6 +33,8 @@ import java.util.logging.Logger;
 public class MongoTest {
 
     private static MongoClient client;
+    private static String collectionName = "test_reactive_driver";
+    private static String databaseName = "music_manager_test";
 
     @BeforeAll
     static void initAll() {
@@ -39,8 +44,8 @@ public class MongoTest {
 
     @AfterAll
     static void tearDownAll() throws Throwable {
-        MongoDatabase database = client.getDatabase("music_manager");
-        MongoCollection<Document> collection = database.getCollection("test");
+        MongoDatabase database = client.getDatabase(databaseName);
+        MongoCollection<Document> collection = database.getCollection(collectionName);
         OperationSubscriber<Success> sub = new OperationSubscriber<>();
         collection.drop().subscribe(sub);
         sub.await();
@@ -50,8 +55,8 @@ public class MongoTest {
 
     @Test
     public void testMongoReactiveStreamAPI() throws Throwable {
-        MongoDatabase database = client.getDatabase("music_manager");
-        MongoCollection<Document> collection = database.getCollection("test");
+        MongoDatabase database = client.getDatabase(databaseName);
+        MongoCollection<Document> collection = database.getCollection(collectionName);
 
         // write
         Document doc = new Document("name", "MongoDB")
@@ -117,9 +122,9 @@ public class MongoTest {
                 fromProviders(PojoCodecProvider.builder().automatic(true).build())
         );
 
-        MongoDatabase database = client.getDatabase("music_manager");
+        MongoDatabase database = client.getDatabase(databaseName);
         MongoCollection<FileDocument> collection = database
-                .getCollection("test", FileDocument.class)
+                .getCollection(collectionName, FileDocument.class)
                 .withCodecRegistry(pojoCodecRegistry);
 
         FileDocument doc = new FileDocument()
