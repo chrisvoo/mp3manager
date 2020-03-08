@@ -1,6 +1,6 @@
 const _ = require('underscore');
 
-const { execute, createTempDir } = require('./utils');
+const { execute, createTempDir } = require('../utils');
 
 class EyeD3 {
     /**

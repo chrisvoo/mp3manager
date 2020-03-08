@@ -4,12 +4,12 @@ const { DateTime, GraphQLJSON } = types;
 
 const typeDefs = `
     scalar DateTime
-    scalar GraphQLJSON
+    scalar JSON
 `;
 
 const resolvers = {
     DateTime,
-    GraphQLJSON,
+    JSON: GraphQLJSON,
 };
 
 module.exports = {

@@ -1,9 +1,8 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const _ = require('underscore');
 const { ApolloServer } = require('apollo-server-express');
 const cors = require('cors');
-const http = require('http')
+const http = require('http');
 const url = require('url');
 const fs = require('fs');
 
@@ -19,8 +18,7 @@ function bootstrapExpress() {
         try {
             const app = express();
             app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
-            app.use(bodyParser.json());
-            app.use(bodyParser.urlencoded({ extended: false }));
+            app.use(express.json());
 
             app.get('/streaming', (request, response) => {
                 const queryData = url.parse(request.url, true).query;
@@ -65,6 +63,7 @@ function bootstrapExpress() {
             const server = new ApolloServer({
                 debug: true,
                 schema,
+                playground: { version: '1.7.25' },
             });
 
             server.applyMiddleware({ app });

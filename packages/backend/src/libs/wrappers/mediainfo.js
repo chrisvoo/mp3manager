@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 const _ = require('underscore');
 
-const { execute } = require('./../utils');
+const { execute } = require('../utils');
 
 /**
  * Wrapper for `mediainfo` CLI app.
