@@ -6,7 +6,10 @@ const http = require('http');
 const url = require('url');
 const fs = require('fs');
 
-const logger = require('../libs/logger');
+
+const MusicFilesDataSource = require('../models/db/filesDataSource');
+const MusicFiles = require('../models/db/files');
+const logger = require('../libs/utils/logger');
 const schema = require('../models/graphql/schema');
 
 /**
@@ -63,6 +66,9 @@ function bootstrapExpress() {
             const server = new ApolloServer({
                 debug: true,
                 schema,
+                dataSources: () => ({
+                    files: new MusicFilesDataSource(MusicFiles),
+                }),
                 playground: { version: '1.7.25' },
             });
 

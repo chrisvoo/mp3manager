@@ -8,20 +8,6 @@ const cp = require('child_process');
 
 const execFile = util.promisify(cp.execFile);
 
-
-// function to encode file data to base64 encoded string
-function base64_encode(binaryData) {
-    // convert binary data to base64 encoded string
-    return Buffer.from(binaryData).toString('base64');
-}
-
-// function to create file from base64 encoded string
-function base64_decode(base64str) {
-    // create buffer object from base64 encoded string, it is important to tell the constructor
-    // that the string is base64 encoded
-    return Buffer.from(base64str, 'base64');
-}
-
 /**
  * Executes an external program passing some arguments to it
  * @param {String} cmd command's name
@@ -114,5 +100,5 @@ async function getHash(algo = 'sha1', data) {
 
 module.exports = {
     inspect, execute, getHash, safePath, sleep,
-    createTempDir, base64_encode, base64_decode,
+    createTempDir,
 };

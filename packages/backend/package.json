@@ -21,30 +21,28 @@
     "url": "https://github.com/chrisvoo/mp3manager/issues"
   },
   "scripts": {
-    "start": "nodemon --exec 'cross-env NODE_ENV=development node src/index.js'",
+    "start": "nodemon src/index.js",
     "test": "jest"
-  },
-  "bin": {
-    "mm": "./bin/mm"
   },
   "nodemonConfig": {
     "ignore": [
-      "bin/*",
       "tests/*"
     ]
   },
   "dependencies": {
-    "apollo-server-express": "^2",
+    "apollo-datasource-mongodb": "^0.2.1",
+    "apollo-server-express": "^2.11.0",
     "bytes": "^3.1.0",
     "cors": "^2.8.5",
     "disconnect": "^1.2.1",
     "dotenv": "^8.2.0",
     "dotenv-expand": "^5.1.0",
-    "express": "^4",
+    "express": "^4.17.1",
     "ffmetadata": "^1.6.0",
-    "graphql": "^14",
+    "graphql": "^14.6.0",
     "graphql-tools": "^4.0.7",
     "graphql-type-json": "^0.2.4",
+    "lodash.isempty": "^4.4.0",
     "merge-graphql-schemas": "~1.5.8",
     "moment": "^2.24.0",
     "mongoose": "^5.9.3",
@@ -61,7 +59,7 @@
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jest": "^22.21.0",
-    "jest": "^25",
+    "jest": "^25.1.0",
     "nodemon": "^2.0.2"
   }
 }

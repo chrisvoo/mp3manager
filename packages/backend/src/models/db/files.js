@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
-const modelName = 'MusicFiles';
+const modelName = 'files';
 
 const MusicFiles = new Schema({
     album_image: Buffer,
