@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "apollo-datasource-mongodb": "^0.2.5",
-    "apollo-server-express": "^2.11.0",
+    "apollo-server-express": "^2.14.2",
     "bytes": "^3.1.0",
     "cors": "^2.8.5",
     "disconnect": "^1.2.1",
