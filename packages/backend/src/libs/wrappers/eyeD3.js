@@ -1,6 +1,6 @@
-const _ = require('underscore');
+const isEmpty = require('lodash.isempty');
 
-const { execute, createTempDir } = require('../utils');
+const { execute, createTempDir } = require('../utils/utils');
 
 class EyeD3 {
     /**
@@ -11,7 +11,7 @@ class EyeD3 {
     static isError(stderr, error) {
         const err = stderr || error;
 
-        if (_.isEmpty(err)) {
+        if (isEmpty(err)) {
             return false;
         }
 
@@ -62,7 +62,7 @@ class EyeD3 {
      * @returns the output of eyeD3's execution (never considered)
      */
     static async removeAllTags(filePath) {
-        if (_.isEmpty(filePath)) {
+        if (isEmpty(filePath)) {
             throw new Error('EyeD3.removeAllTags: passed an empty file path');
         }
 
@@ -75,7 +75,7 @@ class EyeD3 {
      * @returns the output of eyeD3's execution (never considered)
      */
     static async removeAllComments(filePath) {
-        if (_.isEmpty(filePath)) {
+        if (isEmpty(filePath)) {
             throw new Error('EyeD3.removeAllComments: passed an empty file path');
         }
 
@@ -94,14 +94,14 @@ class EyeD3 {
         const tempDir = await createTempDir();
         const result = await this.run([`--write-images=${tempDir}`, filePath]);
 
-        if (_.isEmpty(result)) {
+        if (isEmpty(result)) {
             console.log(`EyeD3 returned null for file: ${filePath}`);
             return null;
         }
 
         const res = result.match(/^Writing \/([A-z0-9-_+]+\/)*([A-z0-9]+\.(jpeg|jpg|gif|png|\(null\)))/gm);
 
-        if (!_.isEmpty(res)) {
+        if (!isEmpty(res)) {
             // EyeD3 outputs 'Writing <PATH>...\n'
             return res[0].split(' ')[1];
         }
@@ -116,7 +116,7 @@ class EyeD3 {
      * @param {string} filePath file's absolute path
      */
     static async addComment(filePath, comment) {
-        if (_.isEmpty(filePath)) {
+        if (isEmpty(filePath)) {
             throw new Error('EyeD3.addComment: passed an empty file path');
         }
 

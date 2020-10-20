@@ -1,15 +1,9 @@
 /* Jest file configuration.
  * It keeps package.json cleaner and permits to load
  * ES6 setup/teardown scripts before/after the tests */
-const { join } = require('path');
-
-const ROOT = `${process.cwd()}`;
-const SERVER_ENV = join(ROOT, 'tests');
-console.log(SERVER_ENV)
-
 module.exports = {
     verbose: true,
     automock: false,
-    testMatch: [join(SERVER_ENV, '/src/*.test.js')],
+    testMatch: ['**/*.test.js'],
     testEnvironment: 'node',
 };

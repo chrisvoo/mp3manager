@@ -11,7 +11,8 @@ const FileFields = `
     has_custom_tag: Boolean
     has_id3v1_tag: Boolean
     has_id3v2_tag: Boolean
-    size: Int,
+    size: Int
+    year: Int
     title: String
 `;
 
@@ -40,6 +41,7 @@ const typeDefs = `
     }
 
     type File {
+        id: ID
         ${FileFields}
     }
 
@@ -81,7 +83,7 @@ const typeDefs = `
     }
 
     type Mutation {
-        updateFile(file: InputFile!): Boolean
+        updateFile(file: InputFile!): File
         deleteFile(id: ID!): Boolean
     }
 `;
@@ -92,12 +94,8 @@ const resolvers = {
         getFile: (o, { cursor }, { dataSources }) => dataSources.files.getFile(cursor),
     },
     Mutation: {
-        updateFile(o, { file }, { dataSources }) {
-            return true;
-        },
-        deleteFile(o, { id }, { dataSources }) {
-            return true;
-        },
+        updateFile: (o, { file }, { dataSources }) => dataSources.files.updateFile(file),
+        deleteFile: (o, { id }, { dataSources }) => dataSources.files.deleteFile(id),
     },
 };
 

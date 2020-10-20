@@ -1,5 +1,5 @@
 const express = require('express');
-const _ = require('underscore');
+const isEmpty = require('lodash.isempty');
 const { ApolloServer } = require('apollo-server-express');
 const cors = require('cors');
 const http = require('http');
@@ -7,9 +7,9 @@ const url = require('url');
 const fs = require('fs');
 
 
-const MusicFilesDataSource = require('../models/db/filesDataSource');
-const MusicFiles = require('../models/db/files');
-const logger = require('../libs/utils/logger');
+const MusicFileDataSource = require('../models/db/MusicFileDataSource');
+const MusicFile = require('../models/db/MusicFile');
+const logger = require('./utils/logger');
 const schema = require('../models/graphql/schema');
 
 /**
@@ -30,7 +30,7 @@ function bootstrapExpress() {
                 
                 if (queryData.skip) {
                     const parsed = parseInt(queryData.skip, 10);
-                    if (_.isNumber(parsed)) {
+                    if (!Number.isNaN(parsed)) {
                         skip = parsed;
                     }
                 }
@@ -41,7 +41,7 @@ function bootstrapExpress() {
                     },
                 });
         
-                if (_.isEmpty(queryData.file)) {
+                if (isEmpty(queryData.file)) {
                     response.writeHead(400, {
                         'Content-Type': 'application/json',
                     });
@@ -67,14 +67,14 @@ function bootstrapExpress() {
                 debug: true,
                 schema,
                 dataSources: () => ({
-                    files: new MusicFilesDataSource(MusicFiles),
+                    files: new MusicFileDataSource(MusicFile),
                 }),
                 playground: { version: '1.7.25' },
             });
 
             server.applyMiddleware({ app });
             httpServer.listen({ port: process.env.SERVER_PORT }, () => {
-                console.info(`🚀 Server ready at http://localhost:${process.env.SERVER_PORT}${server.graphqlPath}`);
+                console.info(`🎸 Server ready at http://localhost:${process.env.SERVER_PORT}${server.graphqlPath}`);
                 resolve(app);
             });
         } catch (error) {

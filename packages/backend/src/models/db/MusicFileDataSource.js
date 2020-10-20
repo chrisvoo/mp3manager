@@ -1,12 +1,75 @@
 const { MongoDataSource } = require('apollo-datasource-mongodb');
+const mongoose = require('mongoose');
+const fs = require('fs');
+const util = require('util');
+const metadata = require('node-id3');
 const isEmpty = require('lodash.isempty');
 const { base64_encode, base64_decode } = require('../../libs/utils/base64');
 const logger = require('../../libs/utils/logger');
 
+const unlink = util.promisify(fs.unlink);
+
 /**
  * Datasource available from the context of the resolvers.
  */
-class MusicFilesDataSource extends MongoDataSource {
+class MusicFileDataSource extends MongoDataSource {
+    /**
+     * Deletes a file from the database and from the file system.
+     * @param {string} cursor A base64 cursor
+     * @returns {Promise<Boolean>}
+     */
+    async deleteFile(cursor) {
+        const file = await this.getFile(cursor);
+        const { filename } = file;
+        await Promise.all([
+            unlink(filename),
+            this.model.findByIdAndDelete(file.id),
+        ]);
+        return true;
+    }
+
+    /**
+     * Updates the info about a file in the database and also some basic metatags
+     * @param {Object} a MusicFile instance
+     * @returns {Promise<MusicFile>} The updated MusicFile
+     */
+    async updateFile(file) {
+        const id = file.id || new mongoose.Types.ObjectId();
+        const newFile = await this.model.findByIdAndUpdate({ id }, file, {
+            new: true,
+            upsert: true,
+            runValidators: true,
+            setDefaultsOnInsert: true,
+        });
+
+        const { filename, album_title, bitrate, artist, title, year } = newFile;
+        const tags = {};
+
+        
+        if (!isEmpty(album_title)) {
+            tags.album = album_title;
+        }
+
+        if (!isEmpty(artist)) {
+            tags.artist = artist;
+        }
+
+        if (!isEmpty(bitrate)) {
+            tags.bpm = bitrate;
+        }
+
+        if (!isEmpty(title)) {
+            tags.title = title;
+        }
+
+        if (!isEmpty(year)) {
+            tags.year = year;
+        }
+
+        metadata.update(tags, filename, (err) => { throw new Error(err.message); });
+        return newFile;
+    }
+
     /**
      * Returns a file by its ID converted in base64
      * @param {string} cursor ObjectId in base64, used for pagination
@@ -89,4 +152,4 @@ class MusicFilesDataSource extends MongoDataSource {
     }
 }
 
-module.exports = MusicFilesDataSource;
+module.exports = MusicFileDataSource;

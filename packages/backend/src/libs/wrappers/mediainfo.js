@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
-const _ = require('underscore');
+const isEmpty = require('lodash.isempty');
 
-const { execute } = require('../utils');
+const { execute } = require('../utils/utils');
 
 /**
  * Wrapper for `mediainfo` CLI app.
@@ -79,7 +79,7 @@ class MediaInfo {
             const process = await execute('mediainfo', ['-f', '--Output=JSON', filePath]);
             const { stdout, stderr } = process;
 
-            if (!_.isEmpty(stderr)) {
+            if (!isEmpty(stderr)) {
                 console.error(stderr);
                 return {
                     error: true,
@@ -90,7 +90,7 @@ class MediaInfo {
             const { media } = JSON.parse(stdout);
             const finalData = {};
 
-            if (_.isEmpty(media)) {
+            if (isEmpty(media)) {
                 return {};
             }
 

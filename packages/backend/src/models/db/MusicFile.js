@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const modelName = 'files';
 
-const MusicFiles = new Schema({
+const MusicFile = new Schema({
     album_image: Buffer,
     album_image_mime_type: String,
     album_title: { type: String, trim: true },
@@ -20,4 +20,4 @@ const MusicFiles = new Schema({
     title: { type: String, trim: true },
 });
 
-module.exports = mongoose.model(modelName, MusicFiles, modelName);
+module.exports = mongoose.model(modelName, MusicFile, modelName);
