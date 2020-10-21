@@ -1,8 +1,7 @@
 # Scanner
 
 This is a command-line app which scans a list of paths and does bulk upserts into MongoDB of all paths and metadata
-relative to the MP3 files found. This means that if you change the metadata of a file, its data will be updated, but 
-since the matching key is the file path, if you change its location, it will be duplicated. A future todo is a watchdog
+relative to the MP3 files found. This means that if you change the metadata of a file, its data will be updated, but since the matching key is the file path, if you change its location, it will be duplicated. A future todo is a watchdog
 on music directories to updated the db once such events occur.  
 The app uses the Java high-level concurrency API, more specifically with the [ForkJoin framework](https://docs.oracle.com/javase/tutorial/essential/concurrency/forkjoin.html).
   
@@ -16,14 +15,12 @@ number of files you want to scan to use a sequential scan strategy. [Read more i
 
 ## Configuration file
 
-This configuration file follows the [HOCON format](https://github.com/lightbend/config/blob/master/HOCON.md). 
+This configuration file follows the [HOCON format](https://github.com/lightbend/config/blob/master/HOCON.md).
 
 * `threshold`: if it's `-1` or absent from the config file, it will be dynamically calculated dividing the total number of files by the available
-processors. If this value is less than the total number of files, the app will split the task into subtasks, otherwise it 
-will act as a single-threaded app.
+processors. If this value is less than the total number of files, the app will split the task into subtasks, otherwise it will act as a single-threaded app.
 * `music_paths`: list of paths to scan. For Windows users, escape the backslashes.
 * `db`: Mongo connection's details (host, port, username, ...). Default connection string: `mongodb://localhost:27017/music_manager`
-
 
 ## Resources
 
